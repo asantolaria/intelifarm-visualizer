@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Intelifarm: Visualizador de datos de sensores</title>
+
+		<!-- Highcharts: libreria de gráficos -->
+		<script src="https://code.highcharts.com/highcharts.js"></script>
+		<script src="https://code.highcharts.com/modules/data.js"></script>
+		<script src="https://code.highcharts.com/modules/exporting.js"></script>
+		<script src="https://code.highcharts.com/modules/export-data.js"></script>
+		<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+		<meta charset="utf-8">
+
+		<!-- Bootstrap -->
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+		<!-- importación de nuestro archivo de funciones -->
+		<script src="functions.js"></script>
+
+		<script>
+			/* Esta función se ejecuta al cargar la página */
+			$( document ).ready(function() {
+				cargarInicial();
+		    });
+		</script>
+	</head>
+
+	<body>
+
+		<div class="jumbotron text-center">
+			<h1>Intelifarm</h1>
+			<p id="titulo"></p>
+			<div class="row">
+				<button id="farm1" type="button" class="btn btn-primary" onclick="loadFarm1()">Farm 1</button>
+			</div>
+			<div class="row">
+				<div class="col-lg-2"></div>
+				<div class="col-lg-8">
+					<figure class="highcharts-figure">
+					    <div id="grafico_temp"></div>
+					</figure>
+				</div>
+				<div class="col-lg-2"></div>
+			</div>
+		</div>
+
+	</body>
+</html>
