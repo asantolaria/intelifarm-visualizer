@@ -4,6 +4,8 @@
 		<title>Intelifarm: Visualizador de datos de sensores</title>
 
 		<!-- Highcharts: libreria de gráficos -->
+		<script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.16.min.js"></script>
+
 		<script src="https://code.highcharts.com/highcharts.js"></script>
 		<script src="https://code.highcharts.com/modules/data.js"></script>
 		<script src="https://code.highcharts.com/modules/exporting.js"></script>
@@ -32,19 +34,17 @@
 
 		<div class="jumbotron text-center">
 			<h1>Intelifarm</h1>
-			<p id="titulo"></p>
+			<!-- Bloque del sensor Farm 1 -->
+			<h2>Farm 1</h2>
+			<br>
 			<div class="row">
-				<button id="farm1" type="button" class="btn btn-primary" onclick="loadFarm1()">Farm 1</button>
-			</div>
-			<div class="row">
-				<div class="col-lg-2"></div>
-				<div class="col-lg-8">
-					<figure class="highcharts-figure">
-					    <div id="grafico_temp"></div>
-					</figure>
+				<div class="col-lg-4">
+				    <div id="farm1_temperatura"></div>
+					</figure>					
 				</div>
-				<div class="col-lg-2"></div>
+
 			</div>
+			<hr>
 		</div>
 
 	</body>

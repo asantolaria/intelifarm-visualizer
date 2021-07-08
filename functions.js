@@ -1,21 +1,57 @@
+/**************************************************************************************************
+ * IMPORTANTE: Cada vez que inicies sesión o caduque sesión debes actualizar esta información
+ * Esta información se encuentra en "Account Detauls" , justo depsués de entrar en tu sesión de AWS
+ * en la web "vocareum".
+ **************************************************************************************************/
+AWS.config.update({
+  region: "us-east-1",
+  accessKeyId: "ASIA2FUDXTIFEJDH4C4H",
+  secretAccessKey: "BG6Q7+wu/h2hV6zQJ4U0zG6P5EhTL9aU7RDVH2fR",
+  sessionToken:"FwoGZXIvYXdzEKb//////////wEaDDght8rBB2HRu438IyLLAcEHg8NRJLfmISWclcPVFNSiFOd7g5MAxSwHqd7WohQv/qsJNhlBM57+qsOqiM3UvihXbXCCNhBQVFCQ3MvR4ylZ8ScC+6ppET5OwTbOtI8opFPgK8pw7zK18b5sj4RbZf3nJvm6b1YfQ8d3+9AvmYZbP9UA1sCtrgOQrC6AlNYVWUaTfBlZcfCAhQ1/AMfTwRhdCDVQ+aq4Bv2iwIoJwYwEMQpPr1rO9JGW8abElLNePoiCdDfj/dlJbiIazZQHl9b3hiInlokLdVfkKO24nYcGMi0GUFKLDWu1X46vnUqz2e51ardznjdGtRplnxw1R0X9biraLOApr/f6eh2av3w="
+
+});
+
+var rojo = "#A93226";
+var azul = "#2E86C1";
+var lila = "#5B2C6F";
+var naranja = "#FF5733";
+var amarillo = "#F1C40F";
+var negro = "#17202A";
+
+var docClient = new AWS.DynamoDB.DocumentClient();
+
 // Función que ejecuta el código al cargar la página
 function cargarInicial(){
-    loadFarm1();
+    cargarDatos('farm1');
 }
 
 
 // Monta un gráfico con la libreria highcharts con los datos que entran por parámetro
-function dibujarGrafico1(datos_grafico){
-    Highcharts.chart('grafico_temp', {
+function dibujarGrafico(sensor, tipo, datos, color){
+    identificador_html = sensor + "_" + tipo; //Ejemplo: farm1_temperatura
+    magnitud = "";
+
+    if(tipo == "temperatura"){
+        magnitud = "ºC";
+    }
+
+    // TAREA: Añadir las condiciones que faltan para tener en cuenta los tipos humedad (%) y viento (m/s)
+
+    Highcharts.chart(identificador_html, {
         title: {
-            text: 'Gráfico de un sensor'
+            text: tipo
         },
         xAxis: {
             type: 'datetime'
         },
         yAxis: {
             title: {
-                text: 'Temperatura'
+                text: tipo
+            }
+        },
+        plotOptions: {
+            series: {
+                color: color
             }
         },
         legend: {
@@ -24,46 +60,73 @@ function dibujarGrafico1(datos_grafico){
 
         series: [{
             type: 'line',
-            name: 'ºC',
-            data: datos_grafico
+            name: magnitud,
+            data: datos
         }]
     });
 }
 
-
-// Reúne la información de la vista para vistualizar la granja 1
-function loadFarm1(){
-    /* Realizar la carga de datos y guardarla en esta variable */
-    datos_grafico_1 = cargarDatos();
-
-    element = document.getElementById('titulo');
-    element.textContent = "Monitorización de la Granja 1";
-
-    /* Llamar a las funciones que dibujan los gráficos con los datos de cada uno */
-    dibujarGrafico1(datos_grafico_1);
+function cargarDatos(sensor){
+    dibujarGrafico(sensor, 'temperatura', DATOS_GRAFICO_PRUEBA, rojo);
 }
 
-
-
-/* EJERCICIO:
- * - realizar la conexión con DynamoDB para obtener los datos y posteriormente dibujarlos 
+/* TAREA:
+ * - realizar la conexión con DynamoDB para obtener los datos y posteriormente dibujarlos
  *   con las funciones proporcionadas en este archivo
  */
-function cargarDatos(){
+function cargarDatosDynamoDB(sensor){
     /* 
-    * Buscar información en la documentación:
+    * Si es necesario, busca información en la documentación:
     * https://docs.aws.amazon.com/es_es/amazondynamodb/latest/developerguide/GettingStarted.JavaScript.html
     */
 
-    return DATOS_GRAFICO_PRUEBA;
+    var minutos = 15; // minutos
+    var fiveMin = 60 * minutos * 1000; // 15 minutos * 60 segundos * 1000 (milisegundos)
+    var d=new Date();  // Devuelve el tiempo actual
+    var nowTs = Math.floor(d.getTime()); // getTime() devuelve los milisegundos
+    var seconds = nowTs-fiveMin; // Al tiempo actual le restamos los 15 minutos
 
+    // TAREA: Trabaja con los datos de la última hora
+    params = {
+        TableName: "intelifarm",
+        KeyConditionExpression: "#dev_eui = :device and #timestamp > :start_date",
+        ExpressionAttributeNames: {
+            "#timestamp": "timestamp",
+            "#dev_eui": "device_id"
+        },
+        ExpressionAttributeValues: {
+             ":start_date": seconds, //fecha en unixtimestamp.
+             ":device": sensor
+        }
+    };
+
+
+    // función que ejecuta la consulta en DynamoDB utilizando la configuración realizada sobre la variable "params"
+    docClient.query(params, function(err, data) {
+
+        // Variable donde acumular los datos de la respuesta
+        tempData = []
+
+        if (err){
+            mensaje = "ERROR " + JSON.stringify(err, undefined, 2);
+            alert(mensaje);
+        } else {
+            
+            data.Items.forEach(function(result) {
+                // El primer campo es el timestamp
+                // El segundo campo es la temperatura. Usar el nombre con el que se registra en la base de datos: "temperature"
+                tempData.push([result['timestamp'], result['temperature']]);
+            });
+            dibujarGrafico(sensor, 'temperatura', tempData, rojo);
+        }
+    });
 }
 
 
 /* Datos de muestra. Formato:
  * Posición 0 : tiempo en formato unix timestamp
  * Posición 1 : valor de la medida (temperatura, humedad o velocidad del viento)
- */ 
+ */
 DATOS_GRAFICO_PRUEBA = [
     [
         1167609600000,
